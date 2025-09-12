@@ -3,7 +3,6 @@ package monitoring
 import (
 	"os"
 	"os/exec"
-	"regexp"
 	"runtime"
 	"strings"
 
@@ -66,28 +65,9 @@ func detectByCPUID() string {
 	return "virtualized"
 }
 
-// detectContainer attempts to detect common Linux container environments when systemd isn't available.
-// Returns a systemd-detect-virt-like string such as "docker", "podman", "lxc", "container" or empty if not detected.
+// detectContainer returns empty string for OpenWrt system
+// since we don't need container detection
 func detectContainer() string {
-	// Definite file markers first.
-	if fileExists("/.dockerenv") {
-		return "docker"
-	}
-	if fileExists("/run/.containerenv") { // podman / CRI-O
-		if s := parseCgroupForContainer(); s != "" {
-			return s
-		}
-		return "container"
-	}
-
-	// cgroup based detection (safer & more specific than broad substring checks)
-	if s := parseCgroupForContainer(); s != "" {
-		return s
-	}
-	if fileExists("/.komari-agent-container") {
-		return "container"
-	}
-	// (Removed mountinfo heuristics which caused host false positives when Docker/Kube tools are installed.)
 	return ""
 }
 
@@ -98,40 +78,7 @@ func fileExists(p string) bool {
 	return false
 }
 
+// parseCgroupForContainer is not used in OpenWrt system
 func parseCgroupForContainer() string {
-	data, err := os.ReadFile("/proc/self/cgroup")
-	if err != nil {
-		return ""
-	}
-	lower := strings.ToLower(string(data))
-
-	// Precompile (once) regex patterns for common container runtimes.
-	// Patterns target leaf elements referencing container IDs instead of any occurrence of runtime name to reduce false positives.
-	var (
-		dockerIDPattern    = regexp.MustCompile(`(?m)/(?:docker|cri-containerd)[/-]([0-9a-f]{12,64})(?:\.scope)?$`)
-		dockerScopePattern = regexp.MustCompile(`(?m)/docker-[0-9a-f]{12,64}\.scope$`)
-		kubePattern        = regexp.MustCompile(`(?m)/kubepods[/.].*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*`) // pod UID
-		podmanPattern      = regexp.MustCompile(`(?m)/(?:libpod|podman)[-_]([0-9a-f]{12,64})(?:\.scope)?$`)
-		lxcPattern         = regexp.MustCompile(`(?m)/lxc/[^/]+$`)
-		crioPattern        = regexp.MustCompile(`(?m)/crio-[0-9a-f]{12,64}\.scope$`)
-	)
-
-	// Order: specific runtime before generic container.
-	if dockerIDPattern.FindStringIndex(lower) != nil || dockerScopePattern.FindStringIndex(lower) != nil {
-		return "docker"
-	}
-	if podmanPattern.FindStringIndex(lower) != nil {
-		return "podman"
-	}
-	if crioPattern.FindStringIndex(lower) != nil {
-		return "container" // CRI-O generic
-	}
-	if kubePattern.FindStringIndex(lower) != nil {
-		return "kubernetes"
-	}
-	if lxcPattern.FindStringIndex(lower) != nil {
-		return "lxc"
-	}
-
-	return ""
+	return "" 
 }
