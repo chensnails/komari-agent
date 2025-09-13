@@ -19,6 +19,10 @@ func OSName() string {
 		return synologyName
 	}
 	
+	if openWrtName := detectOpenWrt(); openWrtName != "" {
+		return openWrtName
+	}
+	
 	file, err := os.Open("/etc/os-release")
 	if err != nil {
 		return "Linux"
@@ -165,4 +169,30 @@ func KernelVersion() string {
 	}
 	
 	return strings.TrimSpace(string(out))
+}
+
+// detectOpenWrt detects if the system is OpenWrt
+func detectOpenWrt() string {
+	// Check for OpenWrt specific files or directories
+	openWrtFiles := []string{
+		"/etc/openwrt_release",
+		"/etc/config/system",
+	}
+	
+	for _, file := range openWrtFiles {
+		if info, err := os.Stat(file); err == nil && !info.IsDir() {
+			// For mt7621 specific detection
+			if strings.Contains(KernelVersion(), "mt7621") {
+				return "OpenWrt (mt7621)"
+			}
+			return "OpenWrt"
+		}
+	}
+	
+	// Check if running on a device with mt7621 chip
+	if strings.Contains(KernelVersion(), "mt7621") {
+		return "Linux (mt7621)"
+	}
+	
+	return ""
 }

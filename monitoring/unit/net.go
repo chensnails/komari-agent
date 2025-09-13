@@ -27,7 +27,6 @@ func ConnectionsCount() (tcpCount, udpCount int, err error) {
 var (
 	// 预定义常见的回环和虚拟接口名称
 	loopbackNames = map[string]struct{}{
-		"br":      {},
 		"cni":     {},
 		"docker":  {},
 		"podman":  {},

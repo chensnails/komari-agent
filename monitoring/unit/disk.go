@@ -59,6 +59,11 @@ func isPhysicalDisk(part disk.PartitionStat) bool {
 	if part.Mountpoint == "/" {
 		return true
 	}
+	// OpenWrt 特殊挂载点处理
+	// overlay 是 OpenWrt 中用于持久化存储的挂载点
+	if part.Mountpoint == "/overlay" {
+		return true
+	}
 	mountpoint := strings.ToLower(part.Mountpoint)
 	// 排除挂载点
 	var mountpointsToExclude = []string{
@@ -94,7 +99,6 @@ func isPhysicalDisk(part disk.PartitionStat) bool {
 		"vboxsf",
 		"9p",
 		"fuse",
-		"overlay",
 		"proc",
 		"devpts",
 		"sysfs",
