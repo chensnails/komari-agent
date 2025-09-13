@@ -41,11 +41,11 @@ for GOOS in "${OS_LIST[@]}"; do
     fi
 
     # 根据不同架构设置特定编译参数
-    BUILD_ARGS="-trimpath -ldflags=-s -ldflags=-w -ldflags=-X -ldflags=github.com/komari-monitor/komari-agent/update.CurrentVersion=${VERSION}"
-    
-    # 为mipsle架构添加特定于mt7621芯片的参数
-    if [ "$GOARCH" = "mipsle" ]; then
-      echo -e "Adding specific flags for mt7621 MIPS architecture..."
+    BUILD_ARGS="-trimpath -ldflags=-s -ldflags=-w -ldflags=-X=github.com/komari-monitor/komari-agent/update.CurrentVersion=${VERSION}"
+
+    # 为mips架构添加特定于mt7621芯片的参数
+    if [ "$GOARCH" = "mips" ] || [ "$GOARCH" = "mipsle" ] || [ "$GOARCH" = "mips64" ] || [ "$GOARCH" = "mips64le" ]; then
+      echo -e "Adding specific flags for MIPS architecture ($GOARCH)..."
       export GOMIPS=softfloat
     fi
     
