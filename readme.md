@@ -19,26 +19,20 @@ Invoke-WebRequest -Uri https://raw.githubusercontent.com/komari-monitor/komari-a
 .\install.ps1 -token YOUR_TOKEN -endpoint YOUR_ENDPOINT
 ```
 
-## 针对 mt7621 芯片的 OpenWrt 系统
+## 针对 OpenWrt 系统（包括 mt7621 芯片设备）
 
-Komari Agent 已特别适配 mt7621 芯片的 OpenWrt 系统。使用专用的安装脚本以获得最佳体验：
+Komari Agent 已特别适配 OpenWrt 系统，包括 mt7621 芯片设备。可以使用普通的 Linux 安装脚本，脚本会自动检测 OpenWrt 系统并进行相应配置：
 
 ```bash
-# 下载并运行 OpenWrt 专用安装脚本
-curl -fsSL https://raw.githubusercontent.com/komari-monitor/komari-agent/main/install-openwrt.sh | sh -s -- --token YOUR_TOKEN --endpoint YOUR_ENDPOINT
-
-# 或者先下载脚本再运行（推荐，以便查看脚本内容）
-curl -fsSL -o install-openwrt.sh https://raw.githubusercontent.com/komari-monitor/komari-agent/main/install-openwrt.sh
-chmod +x install-openwrt.sh
-./install-openwrt.sh --token YOUR_TOKEN --endpoint YOUR_ENDPOINT
+curl -fsSL https://raw.githubusercontent.com/komari-monitor/komari-agent/main/install.sh | sh -s -- --token YOUR_TOKEN --endpoint YOUR_ENDPOINT
 ```
 
 ### OpenWrt 系统上的特殊优化
 
-1. **系统识别**：自动检测 OpenWrt 系统和 mt7621 芯片
+1. **系统识别**：自动检测 OpenWrt 系统和设备硬件
 2. **网络接口处理**：正确监控 br-lan 等 OpenWrt 常用网络接口
 3. **文件系统支持**：适配 squashfs、jffs2 和 overlay 等 OpenWrt 常用文件系统
-4. **轻量级设计**：考虑嵌入式设备的资源限制
+4. **轻量级设计**：考虑嵌入式设备的资源限制，优化内存占用和 CPU 使用率
 
 ### OpenWrt 服务管理
 
@@ -63,6 +57,26 @@ chmod +x install-openwrt.sh
 # 启用开机自启
 /etc/init.d/komari-agent enable
 ```
+
+## 支持的系统和架构
+
+Komari Agent 支持以下操作系统和架构：
+
+### 操作系统
+- Linux
+- Windows
+- Darwin (macOS)
+- FreeBSD
+
+### 处理器架构
+- amd64
+- arm64
+- 386
+- arm
+- mips
+- mipsle（特别针对 mt7621 芯片优化）
+- mips64
+- mips64le
 
 ## 配置选项
 
