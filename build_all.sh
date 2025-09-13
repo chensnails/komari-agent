@@ -40,8 +40,17 @@ for GOOS in "${OS_LIST[@]}"; do
       BINARY_NAME="${BINARY_NAME}.exe"
     fi
 
+    # 根据不同架构设置特定编译参数
+    BUILD_ARGS="-trimpath -ldflags=-s -ldflags=-w -ldflags=-X -ldflags=github.com/komari-monitor/komari-agent/update.CurrentVersion=${VERSION}"
+    
+    # 为mipsle架构添加特定于mt7621芯片的参数
+    if [ "$GOARCH" = "mipsle" ]; then
+      echo -e "Adding specific flags for mt7621 MIPS architecture..."
+      export GOMIPS=softfloat
+    fi
+    
     # 构建二进制文件
-    env GOOS=$GOOS GOARCH=$GOARCH CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -X github.com/komari-monitor/komari-agent/update.CurrentVersion=${VERSION}" -o "./build/$BINARY_NAME"
+    env GOOS=$GOOS GOARCH=$GOARCH CGO_ENABLED=0 go build $BUILD_ARGS -o "./build/$BINARY_NAME"
 
     if [ $? -ne 0 ]; then
       echo -e "${RED}Failed to build for $GOOS/$GOARCH${NC}"
